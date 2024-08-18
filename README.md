@@ -59,6 +59,23 @@
   ```
 
 9. 如果还需要进一步测试，我们可以将转换后的`resnet50.om`文件拷贝到310b上面设备上执行，测试一下是不是能用，并且精度在预期范围内。
-
+```bash
+git clone https://gitee.com/ascend/samples.git
+cd samples/inference/modelInference/sampleResnetQuickStart/cpp
+# 将你的om模型从容器拷贝到本机
+docekr cp ascend:/home/AscendWork/resnet50.om .
+# 将你的om模型拷贝到model路径，路径自定义
+mv path/resnet50.om model/
+# 安装opencv开发包
+sudo apt install libopencv-dev -y
+# 软链接一下头文件路径
+sudo ln -s /usr/include/opencv4/opencv2 /usr/include/opencv2
+# 编译项目
+./scripts/sample_build.sh
+# 下载狗狗图片到data目录
+curl https://obs-9be7.obs.cn-east-2.myhuaweicloud.com/models/aclsample/dog1_1024_683.jpg -o ./data/dog1_1024_683.jpg
+# 运行项目
+./scripts/sample_run.sh
+```
 
 
