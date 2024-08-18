@@ -3,7 +3,7 @@
 2. 主要用途，模拟昇腾cpu运行环境，执行atc命令转换模型结构。因为开发板上面的cpu性能较差，我们可以在性能较好的x86_64的Linux系统上面使用docker镜像来执行该操作。
 3. 参考了官方的docker构建项目：[gitee地址](https://gitee.com/ascend/ascend-docker-image/tree/dev/ascend-infer-310b)
 
-### 编译docker
+### 编译docker镜像
 1. 根据你要模拟的昇腾芯片，修改build.sh中的`soc_version`(该参数决定昇腾芯片型号)和`cann_version`(该参数决定CANN开发工具的版本)。目前参数默认值如下所示：
 
 | soc_version                          | cann_version     |
@@ -44,38 +44,46 @@
   docker run -it --name ascend ascend-310b:8.0.RC2-x86_64 /bin/bash
   ```
 
-7. 在容器内，输入下面的命令简单测试一下atc命令，没报错说明则说明是正常的。
+### 测试docker镜像
+
+1. 在容器内，输入下面的命令简单测试一下atc命令，没报错说明则说明是正常的。
   ```bash
   atc --help
   ```
 
-8. 如果还需要做进一步测试，可以拿官方的demo来测试一下atc转onnx为om的能力。[项目地址](https://gitee.com/ascend/samples/tree/master/inference/modelInference/sampleResnetQuickStart/cpp)，提示`ATC run success, welcome to the next use.`则说明转换成功。
+2. 测试onnx转om。可以拿官方的demo来测试一下atc转onnx为om的能力。[项目地址](https://gitee.com/ascend/samples/tree/master/inference/modelInference/sampleResnetQuickStart/cpp)，提示`ATC run success, welcome to the next use.`则说明转换成功。
   ```bash
   # 下载模型
   curl https://obs-9be7.obs.cn-east-2.myhuaweicloud.com/003_Atc_Models/resnet50/resnet50.onnx -o resnet50.onnx 
 
-  # 转onnx为om，目标设备为310b
-  atc --model=resnet50.onnx --framework=5 --output=resnet50 --input_shape="actual_input_1:1,3,224,224"  --soc_version=Ascend310
+  # 转onnx为om，目标设备为310B1（根据你的设备选择，我是310B1，可以通过npu-smi info查看）
+  atc --model=resnet50.onnx --framework=5 --output=resnet50 --input_shape="actual_input_1:1,3,224,224"  --soc_version=Ascend310B1
+  
+  # 另开一个终端，将模型从容器拷贝到本机
+  docker cp ascend:/home/AscendWork/resnet50.om .
   ```
 
-9. 如果还需要进一步测试，我们可以将转换后的`resnet50.om`文件拷贝到310b上面设备上执行，测试一下是不是能用，并且精度在预期范围内。
-```bash
-git clone https://gitee.com/ascend/samples.git
-cd samples/inference/modelInference/sampleResnetQuickStart/cpp
-# 将你的om模型从容器拷贝到本机
-docekr cp ascend:/home/AscendWork/resnet50.om .
-# 将你的om模型拷贝到model路径，路径自定义
-mv path/resnet50.om model/
-# 安装opencv开发包
-sudo apt install libopencv-dev -y
-# 软链接一下头文件路径
-sudo ln -s /usr/include/opencv4/opencv2 /usr/include/opencv2
-# 编译项目
-./scripts/sample_build.sh
-# 下载狗狗图片到data目录
-curl https://obs-9be7.obs.cn-east-2.myhuaweicloud.com/models/aclsample/dog1_1024_683.jpg -o ./data/dog1_1024_683.jpg
-# 运行项目
-./scripts/sample_run.sh
-```
+3. 测试om能否正常推理。我们可以将转换后的`resnet50.om`文件拷贝到310b上面设备上执行，测试一下是不是能用，并且精度在预期范围内。
+    ```bash
+    git clone https://gitee.com/ascend/samples.git
+    cd samples/inference/modelInference/sampleResnetQuickStart/cpp
+    # 将你的om模型拷贝到model路径，路径自定义
+    mv path/resnet50.om model/
+    # 安装opencv开发包
+    sudo apt install libopencv-dev -y
+    # 软链接一下头文件路径
+    sudo ln -s /usr/include/opencv4/opencv2 /usr/include/opencv2
+    # 编译项目
+    ./scripts/sample_build.sh
+    # 下载狗狗图片到data目录
+    curl https://obs-9be7.obs.cn-east-2.myhuaweicloud.com/models/aclsample/dog1_1024_683.jpg -o ./data/dog1_1024_683.jpg
+    # 运行项目
+    ./scripts/sample_run.sh
+    # 输出结果如下，无报错，且输出的分类置信度为0.902209,和demo输出的结果一样，说明精度损失忽略不计，测试通过。
+    # [INFO] The sample starts to run
+    # out_dog1_1024_683.jpg
+    # label:162  conf:0.902209  class:beagle
+    # [INFO] The program runs successfully
+    ```
 
 
