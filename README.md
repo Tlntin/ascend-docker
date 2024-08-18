@@ -1,7 +1,8 @@
 # 简介
 1. 昇腾推理基础镜像，基于ubuntu22.04制作，内部集成推理通用的第三方库（系统包、pip）和TOOLKIT推理引擎。
 2. 主要用途：模拟昇腾cpu运行环境。当我们执行atc命令转换模型结构时，因为开发板上面的cpu性能较差，我们可以在性能较好的x86_64 CPU上的Linux系统上面使用docker镜像来执行该操作，然后将转换后的模型再放到昇腾设备上进行推理，这样可以节省模型转换需要的等待时间。
-3. 参考了官方的docker构建项目：[gitee地址](https://gitee.com/ascend/ascend-docker-image/tree/dev/ascend-infer-310b)
+3. 参考了官方的docker构建项目：[gitee地址](https://gitee.com/ascend/ascend-docker-image/tree/dev/ascend-infer-310b)。
+4. 该项目主要是之前做通义千问大模型推理时，使用动态shape转换模型onnx模型到om模型时，需要非常长的模型转换时间，于是想到了这个方法来改善。相关帖子可见：[基于香橙派AI PRO适配通义千问大模型过程分享](https://www.hiascend.com/forum/thread-0265157816828965515-1-1.html)。
 
 ### 编译docker镜像
 1. 根据你要模拟的昇腾芯片，修改build.sh中的`soc_version`(该参数决定昇腾芯片型号)和`cann_version`(该参数决定CANN开发工具的版本)。目前参数默认值如下所示：
