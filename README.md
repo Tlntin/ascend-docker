@@ -1,6 +1,6 @@
 # 简介
 1. 昇腾推理基础镜像，基于ubuntu22.04制作，内部集成推理通用的第三方库（系统包、pip）和TOOLKIT推理引擎。
-2. 主要用途，模拟昇腾cpu运行环境，执行atc命令转换模型结构。因为开发板上面的cpu性能较差，我们可以在性能较好的x86_64的Linux系统上面使用docker镜像来执行该操作。
+2. 主要用途：模拟昇腾cpu运行环境。当我们执行atc命令转换模型结构时，因为开发板上面的cpu性能较差，我们可以在性能较好的x86_64 CPU上的Linux系统上面使用docker镜像来执行该操作，然后将转换后的模型再放到昇腾设备上进行推理，这样可以节省模型转换需要的等待时间。
 3. 参考了官方的docker构建项目：[gitee地址](https://gitee.com/ascend/ascend-docker-image/tree/dev/ascend-infer-310b)
 
 ### 编译docker镜像
